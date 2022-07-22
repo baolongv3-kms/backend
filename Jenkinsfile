@@ -7,9 +7,11 @@ pipeline{
     }
     stages{
         stage('checkout project'){
-            checkout
-            container('maven'){
-                sh 'mvn -B -ntp clean install'
+            steps{
+                checkout
+                container('maven'){
+                    sh "mvn compile"
+                }
             }
         }
     }
