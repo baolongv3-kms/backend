@@ -9,9 +9,7 @@ pipeline{
         stage('checkout project'){
             checkout
             container('maven'){
-                stage('Build a Maven project') {
-                    sh 'mvn -B -ntp clean install'
-                }
+                sh 'mvn -B -ntp clean install'
             }
         }
     }
