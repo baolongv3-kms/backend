@@ -6,13 +6,13 @@ metadata:
   spec:
     containers:
       - name: maven
-        image: maven:alpine
+        image: jenkins/jnlp-agent-maven
         command:
           - cat
         volumeMounts: 
           - name: 
       - name: kaniko
-        image: gcr.io/kaniko-project/executor:latest
+        image: dwolla/jenkins-agent-kaniko
         args:
           - "--context=git://github.com/scriptcamp/kubernetes-kaniko"
           - "--destination=<dockerhub-username>/kaniko-demo-image:1.0"
