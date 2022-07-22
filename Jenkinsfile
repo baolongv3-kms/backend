@@ -8,7 +8,7 @@ pipeline{
     stages{
         stage('checkout project'){
             steps{
-                checkout
+                checkout scm
                 container('maven'){
                     sh "mvn compile"
                 }
