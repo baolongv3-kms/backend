@@ -1,0 +1,28 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  labels:
+    type : kubernetes-agent
+  spec:
+    containers:
+      - name: maven
+        image: maven:alpine
+        command:
+          - cat
+        volumeMounts: 
+          - name: 
+      - name: kaniko
+        image: gcr.io/kaniko-project/executor:latest
+        args:
+          - "--context=git://github.com/scriptcamp/kubernetes-kaniko"
+          - "--destination=<dockerhub-username>/kaniko-demo-image:1.0"
+        volumeMounts:
+          - name: kaniko-secret
+            mountPath: /kaniko/.docker
+  volumes:
+  - name: kaniko-secret
+    secret:
+      secretName: regcred
+      items:
+        - key: .dockerconfigjson
+          path: config.json
