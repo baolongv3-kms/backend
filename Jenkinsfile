@@ -1,6 +1,8 @@
 podTemplate(containers: [containerTemplate(name: 'maven', image: 'maven' , command: 'cat', ttyEnabled: true)],
-    workspaceVolume: dynamicPVC(accessModes: 'ReadWriteMany', requestsSize: "10Gi")  
-    ) {
+    volumes: [
+  persistentVolumeClaim(mountPath: '/root/.m2/repository', claimName: 'maven-repo', readOnly: false)
+  ])
+     {
         node (POD_LABEL) {
             stage ('test') {
                 checkout scm
