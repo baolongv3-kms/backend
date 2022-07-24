@@ -1,12 +1,9 @@
-podTemplate(containers: [
-    containerTemplate(name: 'maven', image: 'maven', command: 'cat', ttyEnabled: true)]) {
+podTemplate(yaml: readTrusted('kubernetes-pod.yaml')) {
         node (POD_LABEL) {
             stage ('test') {
                 checkout scm
                 container('maven') {
-                while (true) {
-                    sh "mvn compile"  
-                }
+                    sh 'mvn compile'
             }
         }
     }
