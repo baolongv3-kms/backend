@@ -7,11 +7,11 @@ podTemplate(containers: [containerTemplate(name: 'maven', image: 'maven' , comma
             stage ('checkout') {
                 checkout scm
             }
-            stage('test'){
-                container('maven'){
-                    sh 'mvn test'
-                }
-            }
+            // stage('test'){
+            //     container('maven'){
+            //         sh 'mvn test'
+            //     }
+            // }
 
             stage('build'){
                 container('maven'){
