@@ -1,16 +1,11 @@
-pipeline{
-    agent {
-        kubernetes{
-            yamlFile 'kubernetes-pod.yaml'
-        }
-
-    }
-    stages{
-        stage('checkout project'){
-            steps{
+podTemplate(containers: [
+    containerTemplate(name: 'maven', image: 'maven', command: 'cat', ttyEnabled: true)]) {
+        node (POD_LABEL) {
+            stage ('test') {
                 checkout scm
-                container('maven'){
-                    sh "mvn compile"
+                container('maven') {
+                while (true) {
+                    sh "mvn compile"  
                 }
             }
         }
