@@ -15,7 +15,7 @@ podTemplate(containers: [containerTemplate(name: 'maven', image: 'maven' , comma
 
             stage('build'){
                 container('maven'){
-                    sh 'mvn clean build'
+                    sh 'mvn clean package'
                 }
             }
         }
