@@ -4,7 +4,7 @@ metadata:
   spec:
     containers:
       - name: maven
-        image: jenkins/jnlp-agent-maven
+        image: maven
         command:
           - cat
         volumeMounts: 
