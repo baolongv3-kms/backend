@@ -2,13 +2,21 @@ podTemplate(containers: [containerTemplate(name: 'maven', image: 'maven' , comma
     volumes: [
   persistentVolumeClaim(mountPath: '/root/.m2/repository', claimName: 'maven-repo', readOnly: false)
   ])
-     {
+    {
         node (POD_LABEL) {
-            stage ('test') {
+            stage ('checkout') {
                 checkout scm
-                container('maven') {
-                    sh 'mvn compile'
+            }
+            stage('test'){
+                container('maven'){
+                    sh 'mvn test'
+                }
+            }
+
+            stage('build'){
+                container('maven'){
+                    sh 'mvn clean build'
+                }
             }
         }
     }
-}
