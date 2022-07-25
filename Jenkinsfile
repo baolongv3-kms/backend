@@ -22,7 +22,7 @@ podTemplate(containers: [containerTemplate(name: 'maven', image: 'maven' , comma
 
             stage('test'){
                 container('maven'){
-                    if(env.ghprbTargetBranch == 'dev'){
+                    if(env.BRANCH_NAME != 'release'){
                         sh "mvn test"
                     }                   
                 }
@@ -30,7 +30,7 @@ podTemplate(containers: [containerTemplate(name: 'maven', image: 'maven' , comma
 
             stage('Build Artifact'){
                 container('maven'){
-                    if(env.ghprbTargetBranch == 'release'){
+                    if(env.BRANCH_NAME == 'release'){
                         sh 'mvn clean package'
                     }
                 }
@@ -38,7 +38,7 @@ podTemplate(containers: [containerTemplate(name: 'maven', image: 'maven' , comma
 
             stage('Build Docker Image and publish to ECR'){
                 container('kaniko'){
-                    if(env.ghprbTargetBranch == 'release'){
+                    if(env.BRANCH_NAME == 'release'){
                         sh "/kaniko/executor --dockerfile `pwd`/Dockerfile --context `pwd` --destination=553061678476.dkr.ecr.ap-southeast-1.amazonaws.com/backend:${env.BUILD_ID}"
                     }
                     
