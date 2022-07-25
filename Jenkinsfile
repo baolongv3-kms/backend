@@ -10,6 +10,18 @@ podTemplate(containers: [containerTemplate(name: 'maven', image: 'maven' , comma
             stage ('checkout') {
                 checkout scm
             }
+
+            stage('SonarQube Analysis') {
+                
+            }
+
+            stage('SonarQube'){
+                container('maven'){
+                    withSonarQubeEnv() {
+                        sh "${mvn}/bin/mvn clean verify sonar:sonar -Dsonar.projectKey=Project-Analysis"
+                    }
+                }
+            }
             // stage('test'){
             //     container('maven'){
             //         sh 'mvn test'
