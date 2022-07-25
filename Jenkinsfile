@@ -29,7 +29,7 @@ podTemplate(containers: [containerTemplate(name: 'maven', image: 'maven' , comma
                     }
                 }
             }
-            
+
             if(env.BRANCH_NAME == 'release'){
                     stage('Build Artifact'){
                         container('maven'){
@@ -44,7 +44,7 @@ podTemplate(containers: [containerTemplate(name: 'maven', image: 'maven' , comma
                         
                     }
                 }
-            }
+            
 
            
         }
