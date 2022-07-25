@@ -18,7 +18,7 @@ podTemplate(containers: [containerTemplate(name: 'maven', image: 'maven' , comma
             stage('SonarQube'){
                 container('maven'){
                     withSonarQubeEnv() {
-                        sh "${mvn}/bin/mvn clean verify sonar:sonar -Dsonar.projectKey=Project-Analysis"
+                        sh "mvn clean verify sonar:sonar -Dsonar.projectKey=Project-Analysis"
                     }
                 }
             }
