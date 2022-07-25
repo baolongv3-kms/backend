@@ -5,7 +5,9 @@ podTemplate(containers: [containerTemplate(name: 'maven', image: 'maven' , comma
         configMapVolume(configMapName: 'docker-config', mountPath: '/kaniko/.docker/'),
         secretVolume(secretName: 'aws-secret', mountPath: '/root/.aws')
     ],
-    workspaceVolume: persistentVolumeClaimWorkspaceVolume(mountPath:'/home/jenkins/agent', claimName: 'pv-workspace'))
+    workspaceVolume: persistentVolumeClaimWorkspaceVolume(mountPath:'/home/jenkins/agent', claimName: 'pv-workspace'),
+    runAsUser:1000,
+    runAsGroup:1000
     {
         node (POD_LABEL) {
             stage ('checkout') {
