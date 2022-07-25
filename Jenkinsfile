@@ -11,9 +11,6 @@ podTemplate(containers: [containerTemplate(name: 'maven', image: 'maven' , comma
                 checkout scm
             }
 
-            stage('SonarQube Analysis') {
-                
-            }
 
             stage('SonarQube'){
                 container('maven'){
@@ -22,21 +19,29 @@ podTemplate(containers: [containerTemplate(name: 'maven', image: 'maven' , comma
                     }
                 }
             }
-            // stage('test'){
-            //     container('maven'){
-            //         sh 'mvn test'
-            //     }
-            // }
 
-            stage('build'){
+            stage('test'){
                 container('maven'){
-                    sh 'mvn clean package'
+                    if(env.ghprbTargetBranch == 'dev'){
+                        sh "mvn test"
+                    }                   
                 }
             }
 
-            stage('Build Docker'){
+            stage('Build Artifact'){
+                container('maven'){
+                    if(env.ghprbTargetBranch == 'release'){
+                        sh 'mvn clean package'
+                    }
+                }
+            }
+
+            stage('Build Docker Image and publish to ECR'){
                 container('kaniko'){
-                    sh "/kaniko/executor --dockerfile `pwd`/Dockerfile --context `pwd` --destination=553061678476.dkr.ecr.ap-southeast-1.amazonaws.com/backend:${env.BUILD_ID}"
+                    if(env.ghprbTargetBranch == 'release'){
+                        sh "/kaniko/executor --dockerfile `pwd`/Dockerfile --context `pwd` --destination=553061678476.dkr.ecr.ap-southeast-1.amazonaws.com/backend:${env.BUILD_ID}"
+                    }
+                    
                 }
             }
         }
