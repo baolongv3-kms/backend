@@ -18,8 +18,17 @@ public class ClinicResponse {
     private String imageUrl;
     private String taxCode;
     private float avgRatingScore;
+    private String email;
+    private String phone;
     private LocationResponse location;
     private AccountResponse manager;
     private String status;
+    private Long startTimeShift1;
+    private Long endTimeShift1;
+    private Long startTimeShift2;
+    private Long endTimeShift2;
     private List<ServiceOfClinicResponse> serviceOfClinicResponses;
+    private Integer bookingGap;
+    private Integer expiredDay;
+    private String facebookPageId;
 }

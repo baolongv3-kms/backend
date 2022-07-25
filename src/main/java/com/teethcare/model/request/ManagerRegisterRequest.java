@@ -36,4 +36,18 @@ public class ManagerRegisterRequest extends PatientRegisterRequest implements Tr
 
     @NotNull
     private Integer wardId;
+
+    @NotNull
+    private Long startTimeShift1;
+
+    @NotNull
+    private Long endTimeShift1;
+
+    @NotNull
+    private Long startTimeShift2;
+
+    @NotNull
+    private Long endTimeShift2;
+
+    private String clinicPhone;
 }

@@ -7,10 +7,9 @@ import com.teethcare.model.request.ProfileUpdateRequest;
 import com.teethcare.model.request.StaffPasswordRequest;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
-
-
 public interface AccountService extends CRUDService<Account> {
     Account getAccountByUsername(String username);
 
@@ -33,4 +32,5 @@ public interface AccountService extends CRUDService<Account> {
     void setStaffPassword(int staffId, StaffPasswordRequest staffPasswordRequest);
 
     Account updateProfile(ProfileUpdateRequest updateRequest, String username);
+    Account updateImage(MultipartFile multipartFile, String username);
 }

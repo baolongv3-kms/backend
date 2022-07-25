@@ -17,18 +17,21 @@ public class BookingResponse {
     private int id;
     private PatientResponse patient;
     private BigDecimal totalPrice;
-    private Long createBookingDate;
+    private Long createBookingTime;
     private Long examinationTime;
-    private String text;
-    private Long appointmentDate;
-    private Long expireAppointmentDate;
     private String status;
     private UserInforResponse dentist;
     private String note;
     private Long desiredCheckingTime;
     private UserInforResponse customerService;
     private String description;
+    private boolean isRequestChanged;
+    private int version;
+    private boolean isConfirmed;
+    private BigDecimal finalPrice;
     @JsonInclude(JsonInclude.Include.NON_NULL)
     private List<ServiceOfClinicResponse> services;
     private ClinicSimpleResponse clinic;
+    private FeedbackResponse feedbackResponse;
+    private VoucherBookingResponse voucher;
 }

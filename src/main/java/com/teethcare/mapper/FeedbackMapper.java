@@ -11,35 +11,41 @@ import org.mapstruct.*;
 
 import java.util.List;
 
-@Mapper(componentModel = "spring")
+@Mapper(componentModel = "spring",  uses = {BookingMapper.class, UserInforMapper.class},  config = ConfigurationMapper.class)
+
 public interface FeedbackMapper {
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
     @Mapping(target = "booking", ignore = true)
-    @Mapping(source = "bookingID", target = "id")
     Feedback mapFeedbackRequestToFeedback(FeedbackRequest feedbackRequest);
 
+    @Named(value = "mapFeedbackToFeedbackResponse")
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
     @Mapping(source = "id", target = "id")
-    @Mapping(source = "booking.id", target = "bookingID")
-    @Mapping(source = "booking.patient", target = "patientResponse")
-    @Mapping(source = "booking.clinic", target = "clinicInfoResponse")
+    @Mapping(source = "booking.patient", target = "patient")
+    @Mapping(source = "booking.id", target = "bookingId")
     FeedbackResponse mapFeedbackToFeedbackResponse(Feedback feedback);
 
-    @InheritConfiguration(name = "mapAccountToAccountResponse")
+    @InheritConfiguration(name = "mapReportToReportResponse")
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
     @Mapping(source = "id", target = "id")
-    @Mapping(source = "booking.id", target = "bookingID")
-    @Mapping(source = "booking.patient", target = "patientResponse")
+    @Mapping(source = "booking", target = "bookingResponse")
+    @Mapping(target = "reports", ignore = true)
     FeedbackByClinicResponse mapFeedbackToFeedbackByClinicResponse(Feedback feedback);
+
+    @InheritConfiguration(name = "mapFeedbackToFeedbackByClinicResponse")
+    @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
+    List<FeedbackByClinicResponse> mapFeedbackListToFeedbackByClinicResponseList(List<Feedback> feedback);
 
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
     List<FeedbackResponse> mapFeedbackListToFeedbackResponseList(List<Feedback> feedbacks);
 
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
-    @Mapping(source = "feedback", target = "feedbackResponse")
+    @Mapping(source = "createdTime", target = "createdTime")
+    @Mapping(source = "feedback", target = "feedbackResponse",  qualifiedByName = "mapFeedbackToFeedbackResponse")
     ReportResponse mapReportToReportResponse(Report report);
 
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
     Report mapReportRequestToReport(ReportRequest reportRequest);
+
 
 }

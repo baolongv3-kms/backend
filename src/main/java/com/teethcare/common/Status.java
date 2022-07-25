@@ -1,10 +1,14 @@
 package com.teethcare.common;
 
-public class Status {
-    private Status() {
-    }
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
 
-    ;
+import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Collectors;
+
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
+public class Status {
 
     public enum Report {
         PENDING,
@@ -31,7 +35,17 @@ public class Status {
         TREATMENT,
         DONE,
         REJECTED,
-        UNAVAILABLE
+        UNAVAILABLE,
+        EXPIRED
+    }
+
+    public enum Appointment {
+        ACTIVE,
+        INACTIVE;
+
+        public static List<String> getNames() {
+            return Arrays.stream(Appointment.values()).map(Enum::name).collect(Collectors.toList());
+        }
     }
 
     public enum Service {
@@ -46,8 +60,19 @@ public class Status {
         PENDING
     }
 
+
     public enum ForgotPasswordKey {
         ACTIVE,
+
+    public enum CheckTime {
+        AVAILABLE,
+        UNAVAILABLE
+    }
+
+    public enum Voucher {
+        AVAILABLE,
+        UNAVAILABLE,
+
         INACTIVE
     }
 }

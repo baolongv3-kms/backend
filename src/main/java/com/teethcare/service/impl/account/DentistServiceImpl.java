@@ -12,10 +12,8 @@ import com.teethcare.model.entity.Dentist;
 import com.teethcare.model.request.StaffRegisterRequest;
 import com.teethcare.repository.ClinicRepository;
 import com.teethcare.repository.DentistRepository;
-import com.teethcare.service.AccountService;
-import com.teethcare.service.DentistService;
-import com.teethcare.service.ManagerService;
-import com.teethcare.service.RoleService;
+import com.teethcare.service.*;
+import com.teethcare.utils.PaginationAndSortFactory;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -24,7 +22,6 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -40,10 +37,8 @@ public class DentistServiceImpl implements DentistService {
 
 
     @Override
-    public Dentist findById(int theId) {
-        Optional<Dentist> result = dentistRepository.findById(theId);
-
-        return result.get();
+    public Dentist findById(int id) {
+        return dentistRepository.findDentistById(id);
     }
 
     @Override
@@ -61,8 +56,8 @@ public class DentistServiceImpl implements DentistService {
     }
 
     @Override
-    public void delete(int theId) {
-
+    public void delete(int id) {
+        //TODO
     }
 
     @Override
@@ -71,8 +66,8 @@ public class DentistServiceImpl implements DentistService {
     }
 
     @Override
-    public List<Dentist> findByClinicId(int theId) {
-        List<Dentist> dentistList = dentistRepository.findByClinicId(theId);
+    public List<Dentist> findByClinicId(int id) {
+        List<Dentist> dentistList = dentistRepository.findByClinicId(id);
 
         if (dentistList == null || dentistList.size() == 0) {
             throw new NotFoundException("ID not found");
@@ -82,14 +77,19 @@ public class DentistServiceImpl implements DentistService {
     }
 
     @Override
-    public List<Dentist> findByClinicIdAndStatus(int theId, String status) {
-        return dentistRepository.findByClinicIdAndStatus(theId, status);
+    public List<Dentist> findByClinicIdAndStatus(int id, String status) {
+         return dentistRepository.findByClinicIdAndStatus(id, status);
     }
 
     @Override
-    public Page<Dentist> findAllWithPaging(Pageable pageable) {
-        List<Dentist> dentistList = dentistRepository.findAllByStatusIsNotNull(pageable);
-        return new PageImpl<>(dentistList);
+    public Page<Dentist> findDentistByClinicId(int clinicId, Pageable pageable) {
+        List<Dentist> dentistList = dentistRepository.findDentistByClinicId(clinicId, pageable);
+        if (pageable.isUnpaged()) {
+            List<Dentist> unpagedDentistList = dentistRepository.findDentistByClinicId(clinicId, pageable);
+            return new PageImpl<>(unpagedDentistList);
+        }
+
+        return PaginationAndSortFactory.convertToPage(dentistList, pageable);
     }
 
     @Override

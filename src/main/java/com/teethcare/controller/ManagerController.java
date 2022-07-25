@@ -1,6 +1,7 @@
 package com.teethcare.controller;
 
 import com.teethcare.common.EndpointConstant;
+import com.teethcare.common.Message;
 import com.teethcare.mapper.AccountMapper;
 import com.teethcare.mapper.ClinicMapper;
 import com.teethcare.model.entity.Clinic;
@@ -8,7 +9,9 @@ import com.teethcare.model.entity.Manager;
 import com.teethcare.model.request.ManagerRegisterRequest;
 import com.teethcare.model.response.ClinicInfoResponse;
 import com.teethcare.model.response.ManagerResponse;
-import com.teethcare.service.*;
+import com.teethcare.model.response.MessageResponse;
+import com.teethcare.service.ClinicService;
+import com.teethcare.service.ManagerService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -24,12 +27,9 @@ import java.util.List;
 public class ManagerController {
 
     private final ManagerService managerService;
-    private final AccountService accountService;
     private final ClinicService clinicService;
     private final ClinicMapper clinicMapper;
     private final AccountMapper accountMapper;
-    private final LocationService locationService;
-    private final WardService wardService;
 
 
     @GetMapping
@@ -53,7 +53,6 @@ public class ManagerController {
         ClinicInfoResponse clinicInfoResponse = clinicMapper.mapClinicListToClinicInfoResponse(clinic);
         ManagerResponse managerResponse = accountMapper.mapManagerToManagerResponse(manager, clinicInfoResponse);
         return new ResponseEntity<>(managerResponse, HttpStatus.OK);
-
     }
 
     @PostMapping
@@ -63,13 +62,12 @@ public class ManagerController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<String> delete(@PathVariable("id") int id) {
+    public ResponseEntity<MessageResponse> delete(@PathVariable("id") int id) {
         Manager manager = managerService.findById(id);
         managerService.delete(id);
         Clinic clinic = clinicService.getClinicByManager(manager);
         clinicService.delete(clinic.getId());
-        return new ResponseEntity<>("Delete successfuly.", HttpStatus.OK);
-
+        return new ResponseEntity<>(new MessageResponse(Message.SUCCESS_FUNCTION.name()), HttpStatus.OK);
     }
 
 }

@@ -24,7 +24,10 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+import com.teethcare.utils.PaginationAndSortFactory;
 
+import javax.mail.MessagingException;
 import javax.validation.Valid;
 import java.util.ArrayList;
 import java.util.List;
@@ -66,7 +69,6 @@ public class ClinicController {
         Clinic clinic = clinicService.findById(id);
         ClinicResponse clinicResponse = clinicMapper.mapClinicToClinicResponse(clinic);
         return new ResponseEntity<>(clinicResponse, HttpStatus.OK);
-
     }
 
     @DeleteMapping("/{id}")
@@ -89,25 +91,41 @@ public class ClinicController {
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
+    @PutMapping(path = "/update-image")
+    @PreAuthorize("hasAuthority(T(com.teethcare.common.Role).MANAGER)")
+    public ResponseEntity<ClinicResponse> updateImage(@RequestBody MultipartFile image,
+                                                 @RequestHeader(value = AUTHORIZATION) String token) {
+        token = token.substring("Bearer ".length());
+        String username = jwtTokenUtil.getUsernameFromJwt(token);
+        Clinic clinic = clinicService.updateImage(image, username);
+        ClinicResponse response = clinicMapper.mapClinicToClinicResponse(clinic);
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
 
     @GetMapping("/{id}/staffs")
-    public ResponseEntity<List<AccountResponse>> findAllStaffs(@PathVariable int id) {
+    @PreAuthorize("hasAnyAuthority(T(com.teethcare.common.Role).MANAGER)")
+    public ResponseEntity<Page<AccountResponse>> findAllStaffs (@PathVariable int id,
+                                                                @RequestParam(name = "page", required = false, defaultValue = Constant.PAGINATION.DEFAULT_PAGE_NUMBER) int page,
+                                                                @RequestParam(name = "size", required = false, defaultValue = Constant.PAGINATION.DEFAULT_PAGE_SIZE) int size,
+                                                                @RequestParam(name = "sortBy", required = false, defaultValue = Constant.SORT.DEFAULT_SORT_BY) String field,
+                                                                @RequestParam(name = "sortDir", required = false, defaultValue = Constant.SORT.DEFAULT_SORT_DIRECTION) String direction) {
+        Pageable pageable = PaginationAndSortFactory.getPagable(size, page, field, direction);
 
         List<Account> staffList = new ArrayList<>();
 
         List<Dentist> dentistList = dentistService.findByClinicIdAndStatus(id, Status.Account.ACTIVE.name());
         List<CustomerService> customerServiceList = csService.findByClinicIdAndStatus(id, Status.Account.ACTIVE.name());
 
-        staffList.addAll(dentistList);
-        staffList.addAll(customerServiceList);
-
-        List<AccountResponse> staffResponseList = accountMapper.mapAccountListToAccountResponseList(staffList);
-
-        if (staffResponseList == null || staffResponseList.size() == 0) {
-            throw new NotFoundException("With id " + id + ", the list of hospital staff could not be found.");
+        if (!dentistList.isEmpty()) {
+            staffList.addAll(dentistList);
         }
+        if (!customerServiceList.isEmpty()) {
+            staffList.addAll(customerServiceList);
+        }
+        List<AccountResponse> staffResponseList = accountMapper.mapAccountListToAccountResponseList(staffList);
+        Page<AccountResponse> responses = PaginationAndSortFactory.convertToPage(staffResponseList, pageable);
 
-        return new ResponseEntity<>(staffResponseList, HttpStatus.OK);
+        return new ResponseEntity<>(responses, HttpStatus.OK);
     }
 
     @GetMapping("/{id}/services")
@@ -132,15 +150,33 @@ public class ClinicController {
 
         Page<ServiceOfClinic> list = serviceOfClinicService.findAllWithFilter(serviceFilterRequest, pageable, account);
 
-        Page<ServiceOfClinicResponse> responses = list.map(new Function<ServiceOfClinic, ServiceOfClinicResponse>() {
-            @Override
-            public ServiceOfClinicResponse apply(ServiceOfClinic service) {
-                return serviceOfClinicMapper.mapServiceOfClinicToServiceOfClinicResponse(service);
-            }
-        });
+        Page<ServiceOfClinicResponse> responses = list.map(serviceOfClinicMapper::mapServiceOfClinicToServiceOfClinicResponse);
         return new ResponseEntity<>(responses, HttpStatus.OK);
 
     }
 
+    @PutMapping("/{id}/approve")
+    public ResponseEntity<ClinicResponse> approve(@PathVariable("id") int id) throws MessagingException {
+        Clinic clinic = clinicService.findById(id);
+        clinic = clinicService.approve(clinic);
+        ClinicResponse clinicResponse = clinicMapper.mapClinicToClinicResponse(clinic);
+        return new ResponseEntity<>(clinicResponse, HttpStatus.OK);
+    }
 
+    @PutMapping("/{id}/reject")
+    public ResponseEntity<ClinicResponse> reject(@PathVariable("id") int id) throws MessagingException {
+        Clinic clinic = clinicService.findById(id);
+        clinic = clinicService.reject(clinic);
+        ClinicResponse clinicResponse = clinicMapper.mapClinicToClinicResponse(clinic);
+        return new ResponseEntity<>(clinicResponse, HttpStatus.OK);
+    }
+
+    @GetMapping("/{id}/facebookPageId")
+    public ResponseEntity<String> getFacebookPageId(@PathVariable String id) {
+        String facebookPageId = clinicService.findFacebookPageIdByClinicId(id);
+        if (facebookPageId == null) {
+            return ResponseEntity.ok("{\"facebookPageId\": null}");
+        }
+        return ResponseEntity.ok("{\"facebookPageId\": \""+facebookPageId+"\"}");
+    }
 }

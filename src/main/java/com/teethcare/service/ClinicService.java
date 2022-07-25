@@ -7,7 +7,9 @@ import com.teethcare.model.request.ClinicFilterRequest;
 import com.teethcare.model.request.ClinicRequest;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.web.multipart.MultipartFile;
 
+import javax.mail.MessagingException;
 import java.util.List;
 
 public interface ClinicService extends CRUDService<Clinic> {
@@ -19,11 +21,18 @@ public interface ClinicService extends CRUDService<Clinic> {
                                    Pageable pageable);
 
     Clinic getClinicByManager(Manager manager);
-
+    Clinic findClinicByCustomerServiceId(int csId);
     Clinic findById(int theId);
 
     void saveWithManagerAndLocation(Clinic clinic, Manager manager, Location location);
 
-    Clinic updateProfile(ClinicRequest clinicRequest, String username);
 
+
+    Clinic updateProfile (ClinicRequest clinicRequest, String username);
+    Clinic updateImage (MultipartFile image, String username);
+    Clinic approve(Clinic clinic) throws MessagingException;
+    Clinic reject(Clinic clinic) throws MessagingException;
+
+
+    String findFacebookPageIdByClinicId(String id);
 }
