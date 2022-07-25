@@ -7,7 +7,7 @@ podTemplate(containers: [containerTemplate(name: 'maven', image: 'maven' , comma
     ],
     workspaceVolume: persistentVolumeClaimWorkspaceVolume(mountPath:'/home/jenkins/agent', claimName: 'pv-workspace'),
     runAsUser:1000,
-    runAsGroup:1000
+    runAsGroup:1000)
     {
         node (POD_LABEL) {
             stage ('checkout') {
