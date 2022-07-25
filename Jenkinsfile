@@ -24,7 +24,7 @@ podTemplate(containers: [containerTemplate(name: 'maven', image: 'maven' , comma
 
             stage('Build Docker'){
                 container('kaniko'){
-                    sh "/kaniko/executor --dockerfile `pwd`/Dockerfile --context `pwd` --destination=public.ecr.aws/z0e0c2y1/kms-probation-public/backend:${env.BUILD_ID}"
+                    sh "/kaniko/executor --dockerfile `pwd`/Dockerfile --context `pwd` --destination=553061678476.dkr.ecr.ap-southeast-1.amazonaws.com/backend:${env.BUILD_ID}"
                 }
             }
         }
