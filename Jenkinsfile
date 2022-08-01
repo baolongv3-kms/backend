@@ -21,17 +21,15 @@ podTemplate(containers: [containerTemplate(name: 'maven', image: 'maven' , comma
                 }
             }
 
-            if(env.BRANCH_NAME == 'dev'){
+            if(env.CHANGE_TARGET == 'dev'){
                 stage('test'){
-                    container('maven'){
-                        when(env.BRANCH_NAME == 'dev'){
-                            sh "mvn test"
-                        }                   
+                    container('maven'){                      
+                            sh "mvn test"                                     
                     }
                 }
             }
 
-            if(env.BRANCH_NAME == 'release'){
+            if(env.CHANGE_TARGET == 'release'){
                     stage('Build Artifact'){
                         container('maven'){
                             sh 'mvn clean package'
