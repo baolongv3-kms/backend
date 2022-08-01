@@ -60,6 +60,10 @@ public class Status {
         PENDING
     }
 
+
+    public enum ForgotPasswordKey {
+        ACTIVE,
+
     public enum CheckTime {
         AVAILABLE,
         UNAVAILABLE
@@ -68,6 +72,7 @@ public class Status {
     public enum Voucher {
         AVAILABLE,
         UNAVAILABLE,
+
         INACTIVE
     }
 }

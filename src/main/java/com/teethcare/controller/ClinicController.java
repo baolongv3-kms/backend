@@ -83,7 +83,7 @@ public class ClinicController {
     @PutMapping
     @PreAuthorize("hasAuthority(T(com.teethcare.common.Role).MANAGER)")
     public ResponseEntity<ClinicResponse> update(@Valid @RequestBody ClinicRequest clinicRequest,
-                                                  @RequestHeader(value = AUTHORIZATION) String token) {
+                                                 @RequestHeader(value = AUTHORIZATION) String token) {
         token = token.substring("Bearer ".length());
         String username = jwtTokenUtil.getUsernameFromJwt(token);
         Clinic clinic = clinicService.updateProfile(clinicRequest, username);

@@ -26,10 +26,13 @@ public interface ClinicService extends CRUDService<Clinic> {
 
     void saveWithManagerAndLocation(Clinic clinic, Manager manager, Location location);
 
+
+
     Clinic updateProfile (ClinicRequest clinicRequest, String username);
     Clinic updateImage (MultipartFile image, String username);
     Clinic approve(Clinic clinic) throws MessagingException;
     Clinic reject(Clinic clinic) throws MessagingException;
+
 
     String findFacebookPageIdByClinicId(String id);
 }
