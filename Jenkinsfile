@@ -1,3 +1,4 @@
+
 podTemplate(containers: [containerTemplate(name: 'maven', image: 'maven' , command: 'cat', ttyEnabled: true),
                          containerTemplate(name: 'kaniko', image:'gcr.io/kaniko-project/executor:debug-539ddefcae3fd6b411a95982a830d987f4214251', command: 'cat', ttyEnabled: true)],
     volumes: [
@@ -20,34 +21,32 @@ podTemplate(containers: [containerTemplate(name: 'maven', image: 'maven' , comma
                 }
             }
 
-            stage('test'){
-                container('maven'){
-                    when(env.BRANCH_NAME != 'release'){
-
-                        sh "mvn test"
-                    }                   
-                }
-            }
-
-            stage('Build Artifact'){
-                container('maven'){
-
-                    when(env.BRANCH_NAME == 'release'){
-
-                        sh 'mvn clean package'
+            if(env.BRANCH_NAME == 'dev'){
+                stage('test'){
+                    container('maven'){
+                        when(env.BRANCH_NAME == 'dev'){
+                            sh "mvn test"
+                        }                   
                     }
                 }
             }
 
-            stage('Build Docker Image and publish to ECR'){
-                container('kaniko'){
-
-                    when(env.BRANCH_NAME == 'release'){
-
-                        sh "/kaniko/executor --dockerfile `pwd`/Dockerfile --context `pwd` --destination=553061678476.dkr.ecr.ap-southeast-1.amazonaws.com/backend:${env.BUILD_ID}"
+            if(env.BRANCH_NAME == 'release'){
+                    stage('Build Artifact'){
+                        container('maven'){
+                            sh 'mvn clean package'
+                        }
                     }
-                    
+                    stage('Build Docker Image and publish to ECR'){
+                        container('kaniko'){
+                        
+                            sh "/kaniko/executor --dockerfile `pwd`/Dockerfile --context `pwd` --destination=553061678476.dkr.ecr.ap-southeast-1.amazonaws.com/backend:${env.BUILD_ID}"
+                        }
+                        
+                    }
                 }
-            }
+            
+
+           
         }
     }
