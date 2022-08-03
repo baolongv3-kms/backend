@@ -12,6 +12,8 @@ podTemplate(containers: [containerTemplate(name: 'maven', image: 'maven' , comma
                 
                 stage ('checkout') {
                     checkout scm
+                    sh 'git rev-parse HEAD > commit'
+                    env.GIT_COMMIT = readFile('commit').trim()
                 }
 
 
@@ -42,7 +44,7 @@ podTemplate(containers: [containerTemplate(name: 'maven', image: 'maven' , comma
                         }
                         stage('Build Docker Image and publish to ECR'){
                             container('kaniko'){
-                                sh "/kaniko/executor --dockerfile `pwd`/Dockerfile --context `pwd` --destination=553061678476.dkr.ecr.ap-southeast-1.amazonaws.com/backend:${GIT_COMMIT}"
+                                sh "/kaniko/executor --dockerfile `pwd`/Dockerfile --context `pwd` --destination=553061678476.dkr.ecr.ap-southeast-1.amazonaws.com/backend:${env.GIT_COMMIT}"
                             }
                                 
                         }
