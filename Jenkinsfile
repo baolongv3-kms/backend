@@ -34,21 +34,20 @@ podTemplate(containers: [containerTemplate(name: 'maven', image: 'maven' , comma
                 }
 
                 if(env.CHANGE_TARGET == 'release'){
-                        withEnv(['DB_TYPE=teethcare-staging']){
-                            stage('Build Artifact'){
-                                container('maven'){
-                                    sh 'mvn clean package'
-                                }
-                            }
-                            stage('Build Docker Image and publish to ECR'){
-                                container('kaniko'){
-                                
-                                    sh "/kaniko/executor --dockerfile `pwd`/Dockerfile --context `pwd` --destination=553061678476.dkr.ecr.ap-southeast-1.amazonaws.com/backend:${env.GIT_COMMIT}"
-                                }
-                                
+                        env.DB_TYPE = "teethcare-staging"
+                        stage('Build Artifact'){
+                            container('maven'){
+                                sh 'mvn clean package'
                             }
                         }
-                    }
+                        stage('Build Docker Image and publish to ECR'){
+                            container('kaniko'){
+                                sh "/kaniko/executor --dockerfile `pwd`/Dockerfile --context `pwd` --destination=553061678476.dkr.ecr.ap-southeast-1.amazonaws.com/backend:${env.GIT_COMMIT}"
+                            }
+                                
+                        }
+                        
+                }
                 
 
             
