@@ -7,7 +7,7 @@ podTemplate(containers: [containerTemplate(name: 'maven', image: 'maven' , comma
         secretVolume(secretName: 'aws-secret', mountPath: '/root/.aws')
     ])
     {
-        withCredentials([DB_PASSWORD(credentialsId: 'teethcare-password')]){
+        withCredentials([string(credentialsId: 'teethcare-password',variable: 'DB_PASSWORD')]){
             node (POD_LABEL) {
                 
                 stage ('checkout') {
