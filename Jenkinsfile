@@ -7,44 +7,52 @@ podTemplate(containers: [containerTemplate(name: 'maven', image: 'maven' , comma
         secretVolume(secretName: 'aws-secret', mountPath: '/root/.aws')
     ])
     {
-        node (POD_LABEL) {
-            stage ('checkout') {
-                checkout scm
-            }
+        withCredentials([string(credentialsId: 'teethcare-password',variable: 'DB_PASSWORD')]){
+            node (POD_LABEL) {
+                
+                stage ('checkout') {
+                    checkout scm
+                    sh 'git rev-parse HEAD > commit'
+                    env.GIT_COMMIT = readFile('commit').trim()
+                }
 
 
-            stage('SonarQube'){
-                container('maven'){
-                    withSonarQubeEnv() {
-                        sh "mvn clean verify sonar:sonar -Dsonar.projectKey=Project-Analysis"
+                stage('SonarQube'){
+                    container('maven'){
+                        withSonarQubeEnv() {
+                            env.DB_TYPE = "teethcare-qa"
+                            sh "mvn clean verify sonar:sonar -Dsonar.projectKey=Project-Analysis"
+                        }
                     }
                 }
-            }
 
-            if(env.CHANGE_TARGET == 'dev'){
-                stage('test'){
-                    container('maven'){                      
+                if(env.CHANGE_TARGET == 'dev'){
+                    stage('test'){
+                        container('maven'){   
+                            env.DB_TYPE = "teethcare-qa"                   
                             sh "mvn test"                                     
+                        }
                     }
                 }
-            }
 
-            if(env.CHANGE_TARGET == 'release'){
-                    stage('Build Artifact'){
-                        container('maven'){
-                            sh 'mvn clean package'
+                if(env.CHANGE_TARGET == 'release'){
+                        env.DB_TYPE = "teethcare-staging"
+                        stage('Build Artifact'){
+                            container('maven'){
+                                sh 'mvn clean package'
+                            }
                         }
-                    }
-                    stage('Build Docker Image and publish to ECR'){
-                        container('kaniko'){
-                        
-                            sh "/kaniko/executor --dockerfile `pwd`/Dockerfile --context `pwd` --destination=553061678476.dkr.ecr.ap-southeast-1.amazonaws.com/backend:${env.BUILD_ID}"
+                        stage('Build Docker Image and publish to ECR'){
+                            container('kaniko'){
+                                sh "/kaniko/executor --dockerfile `pwd`/Dockerfile --context `pwd` --destination=553061678476.dkr.ecr.ap-southeast-1.amazonaws.com/backend:${env.GIT_COMMIT}"
+                            }
+                                
                         }
                         
-                    }
                 }
+                
+
             
-
-           
+            }
         }
     }
