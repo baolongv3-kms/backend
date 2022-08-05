@@ -3,20 +3,29 @@ kind: Deployment
 metadata:
   name: test-backend
 spec:
+  replicas: 1
   selector:
     matchLabels:
       app: test-backend
   template:
     metadata:
       labels:
-        app: myapp
+        app: test-backend
     spec:
       containers:
-      - name: myapp
-        image: 553061678476.dkr.ecr.ap-southeast-1.amazonaws.com/backend:latest
+      - name: test-backend
+        image: 553061678476.dkr.ecr.ap-southeast-1.amazonaws.com/backend:dev
+        env: 
+          - name: DB_TYPE
+            value: teethcare-qa
+          - name: DB_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: sql-secret
+                key: sapassword
         resources:
           limits:
-            memory: "128Mi"
+            memory: "1024Mi"
             cpu: "500m"
         ports:
         - containerPort: 8080
@@ -28,7 +37,7 @@ metadata:
 spec:
   type: LoadBalancer
   selector:
-    app: 
+    app: test-backend
   ports:
   - port: 80
     targetPort: 8080

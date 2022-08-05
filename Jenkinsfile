@@ -12,12 +12,11 @@ podTemplate(containers: [containerTemplate(name: 'maven', image: 'maven' , comma
                 
                 stage ('checkout') {
                     checkout scm
-                    sh 'git rev-parse HEAD > commit'
-                    env.GIT_COMMIT = readFile('commit').trim()
+                    env.VERSION_NUMBER = sh script: 'mvn help:evaluate -Dexpression=project.version -q -DforceStdout', returnStdout: true
                 }
 
 
-                stage('SonarQube'){
+                stage('SonarQube Analysis'){
                     container('maven'){
                         withSonarQubeEnv() {
                             env.DB_TYPE = "teethcare-qa"
@@ -36,7 +35,7 @@ podTemplate(containers: [containerTemplate(name: 'maven', image: 'maven' , comma
                 }
 
                 if(env.CHANGE_TARGET == 'release'){
-                        env.DB_TYPE = "teethcare-staging"
+                        env.DB_TYPE = "teethcare-qa"
                         stage('Build Artifact'){
                             container('maven'){
                                 sh 'mvn clean package'
@@ -44,13 +43,13 @@ podTemplate(containers: [containerTemplate(name: 'maven', image: 'maven' , comma
                         }
                         stage('Build Docker Image and publish to ECR'){
                             container('kaniko'){
-                                sh "/kaniko/executor --dockerfile `pwd`/Dockerfile --context `pwd` --destination=553061678476.dkr.ecr.ap-southeast-1.amazonaws.com/backend:${env.CHANGE_BRANCH}"
+                                sh "/kaniko/executor --dockerfile `pwd`/Dockerfile --context `pwd` --destination=553061678476.dkr.ecr.ap-southeast-1.amazonaws.com/backend:${env.VERSION_NUMBER}"
                             }
                                 
                         }
                         
                 }
-                
+            
 
             
             }
