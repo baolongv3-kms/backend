@@ -12,7 +12,7 @@ podTemplate(containers: [containerTemplate(name: 'maven', image: 'maven' , comma
                 
                 stage ('checkout') {
                     checkout scm
-                    env.VERSION_NUMBER = sh script: 'mvn help:evaluate -Dexpression=project.version -q -DforceStdout', returnStdout: true
+                    
                 }
 
 
@@ -20,6 +20,7 @@ podTemplate(containers: [containerTemplate(name: 'maven', image: 'maven' , comma
                     container('maven'){
                         withSonarQubeEnv() {
                             env.DB_TYPE = "teethcare-qa"
+                            env.VERSION_NUMBER = sh script: 'mvn help:evaluate -Dexpression=project.version -q -DforceStdout', returnStdout: true
                             sh "mvn clean verify sonar:sonar -Dsonar.projectKey=Project-Analysis"
                         }
                     }
