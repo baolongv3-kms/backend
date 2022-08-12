@@ -45,15 +45,15 @@ podTemplate(containers: [containerTemplate(name: 'maven', image: 'maven' , comma
                         }
                     }
                     stage('Deploy to QA'){
-                        withCredentials([usernamePassword(credentialsId:'baolongv3-github',usernameVariable:'USERNAME',passwordVariable:'PASSWORD')]){
+                        
                             container('argocd-tools'){
-                                sh "git clone https://$USERNAME:$PASSWORD@github.com/baolongv3-kms/backend-deploy"
+                                git url "https://github.com/baolongv3-kms/backend-deploy"
                                 sh "git config --global user.email 'ci@ci.com'"
                                 dir("backend-deploy"){
                                     sh "cd ./backend-deploy/overlays/qa && kustomize edit set image 553061678476.dkr.ecr.ap-southeast-1.amazonaws.com/backend:${env.VERSION_NUMBER}-${env.CHANGE_BRANCH}"
                                     sh "git commit -am 'Publish new version ${env.VERSION_NUMBER} to staging' && git push || echo 'no changess'"
                                 }
-                            }
+                            
                         }
             
                     }
