@@ -49,8 +49,8 @@ podTemplate(containers: [containerTemplate(name: 'maven', image: 'maven' , comma
                             container('argocd-tools'){
                                 git url: "https://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@github.com/baolongv3-kms/backend-deploy"
                                 sh "git config --global user.email 'ci@ci.com'"
-                                dir("backend-deploy"){
-                                    sh "cd overlays/qa/ && kustomize edit set image 553061678476.dkr.ecr.ap-southeast-1.amazonaws.com/backend:${env.VERSION_NUMBER}-${env.CHANGE_BRANCH}"
+                                dir("backend-deploy/overlays/qa"){
+                                    sh "kustomize edit set image 553061678476.dkr.ecr.ap-southeast-1.amazonaws.com/backend:${env.VERSION_NUMBER}-${env.CHANGE_BRANCH}"
                                     sh "git commit -am 'Publish new version ${env.VERSION_NUMBER} to staging' && git push || echo 'no changess'"
                                 }
                             
