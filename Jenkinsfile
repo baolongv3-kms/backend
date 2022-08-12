@@ -80,7 +80,7 @@ podTemplate(containers: [containerTemplate(name: 'maven', image: 'maven' , comma
                                 
                         }
                         stage('Deploy to QA'){
-                            container('argocd-tools'){
+                            container('kustomize'){
                                 sh "git clone https://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@github.com/baolongv3-kms/backend-deploy"
                                 sh "git config --global user.email 'ci@ci.com'"
                                 dir("backend-deploy"){
