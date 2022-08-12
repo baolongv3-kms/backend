@@ -50,7 +50,7 @@ podTemplate(containers: [containerTemplate(name: 'maven', image: 'maven' , comma
                             sh "git config --global user.email 'ci@ci.com'"
                             dir("backend-deploy"){
                                 sh "cd ./backend-deploy/overlays/qa && kustomize edit set image 553061678476.dkr.ecr.ap-southeast-1.amazonaws.com/backend:${env.VERSION_NUMBER}-${env.CHANGE_BRANCH}"
-                                sh "git commit -am 'Publish new version ${env.VERSION_NUMBER} to staging' && git push || echo 'no changes'"
+                                sh "git commit -am 'Publish new version ${env.VERSION_NUMBER} to staging' && git push || echo 'no changess'"
                             }
                         }
             
