@@ -46,7 +46,7 @@ podTemplate(containers: [containerTemplate(name: 'maven', image: 'maven' , comma
                     }
                     stage('Deploy to QA'){
                         
-                            container('argocd-tools'){
+                            container('kustomize'){
                                 git url: "https://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@github.com/baolongv3-kms/backend-deploy"
                                 sh "git config --global user.email 'ci@ci.com'"
                                 dir("backend-deploy/overlays/qa"){
