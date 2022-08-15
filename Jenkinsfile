@@ -94,15 +94,7 @@ podTemplate(containers: [containerTemplate(name: 'maven', image: 'maven' , comma
                             }
                             sh "git commit -am 'Publish new version ${env.VERSION_NUMBER} to staging' && git push || echo 'no changes'"
                 
-                        }
-                }            
-                
-
-
-
-
-
-            
+                        }          
             }
         }
     }
