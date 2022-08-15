@@ -51,6 +51,7 @@ podTemplate(containers: [containerTemplate(name: 'maven', image: 'maven' , comma
                             sh "git config --global user.email 'ci@ci.com'"
                             container('kustomize'){
                                 dir('backend-deploy/overlays/qa'){
+                                    sh "chown -R jenkins:jenkins ./"
                                     sh "kustomize edit set image 553061678476.dkr.ecr.ap-southeast-1.amazonaws.com/backend:${env.VERSION_NUMBER}-${env.CHANGE_BRANCH}"
                                 }
                             }
