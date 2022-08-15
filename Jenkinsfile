@@ -1,7 +1,7 @@
 
 podTemplate(containers: [containerTemplate(name: 'maven', image: 'maven' , command: 'cat', ttyEnabled: true),
                          containerTemplate(name: 'kaniko', image:'gcr.io/kaniko-project/executor:debug-539ddefcae3fd6b411a95982a830d987f4214251', command: 'cat', ttyEnabled: true),
-                         containerTemplate(name: 'kustomize', image: 'zillownyc/kustomize:latest', command: 'cat', ttyEnabled: true),
+                         containerTemplate(name: 'kustomize', image: 'bitnami/kubectl:latest', command: 'cat', ttyEnabled: true),
                          containerTemplate(name: 'git', image: 'alpine/git:latest', command: 'cat', ttyEnabled: true)],
     volumes: [
         persistentVolumeClaim(mountPath: '/root/.m2/repository', claimName: 'maven-repo', readOnly: false),
@@ -52,7 +52,7 @@ podTemplate(containers: [containerTemplate(name: 'maven', image: 'maven' , comma
                         }  
                         container('kustomize'){
                             dir('backend-deploy/overlays/qa'){
-                                sh "kustomize edit set image 553061678476.dkr.ecr.ap-southeast-1.amazonaws.com/backend:${env.VERSION_NUMBER}-${env.CHANGE_BRANCH}"
+                                sh "kubectl kustomize edit set image 553061678476.dkr.ecr.ap-southeast-1.amazonaws.com/backend:${env.VERSION_NUMBER}-${env.CHANGE_BRANCH}"
                             }
                         }
                         container('git'){
