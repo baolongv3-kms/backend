@@ -50,6 +50,7 @@ podTemplate(containers: [containerTemplate(name: 'maven', image: 'maven' , comma
                             sh "git clone https://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@github.com/baolongv3-kms/backend-deploy"
                             sh "git config --global user.email 'ci@ci.com'"
                             dir('backend-deploy/overlays/qa'){
+                                sh "chmod 777 ./"
                                 sh "kustomize edit set image 553061678476.dkr.ecr.ap-southeast-1.amazonaws.com/backend:${env.VERSION_NUMBER}-${env.CHANGE_BRANCH}"
                             }                    
                             dir('backend-deploy'){
