@@ -64,7 +64,7 @@ podTemplate(containers: [containerTemplate(name: 'maven', image: 'maven' , comma
                                 sh "kustomize edit set image 553061678476.dkr.ecr.ap-southeast-1.amazonaws.com/backend:${branchName}"
                             }                    
                             dir('backend-deploy'){
-                                sh "git commit -am 'Publish new version ${env.VERSION_NUMBER} to QA' && git push origin HEAD || echo 'no changes'"
+                                sh "git commit -am 'Publish new version ${env.VERSION_NUMBER} to QA' && git push origin ${branchName} || echo 'no changes'"
                             }
                         }
 
