@@ -2,6 +2,7 @@
 podTemplate(containers: [containerTemplate(name: 'maven', image: 'maven' , command: 'cat', ttyEnabled: true),
                          containerTemplate(name: 'kaniko', image:'gcr.io/kaniko-project/executor:debug-539ddefcae3fd6b411a95982a830d987f4214251', command: 'cat', ttyEnabled: true),
                          containerTemplate(name: 'tools', image: 'argoproj/argo-cd-ci-builder', command: 'cat', ttyEnabled: true),
+                         containerTemplate(name: 'argocd-cli', image: 'argoproj/argocd-cli', command: 'cat', ttyEnabled: true)
                          containerTemplate(name: 'git', image: 'alpine/git:latest', command: 'cat', ttyEnabled: true)],
     volumes: [
         persistentVolumeClaim(mountPath: '/root/.m2/repository', claimName: 'maven-repo', readOnly: false),
@@ -47,22 +48,36 @@ podTemplate(containers: [containerTemplate(name: 'maven', image: 'maven' , comma
                     }
                     stage('Deploy to QA'){
                         container('tools'){
+                            branchName = "${env.VERSION_NUMBER}-${env.CHANGE_BRANCH}"
                             sh "git clone https://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@github.com/baolongv3-kms/backend-deploy"
                             sh "git config --global user.email 'ci@ci.com'"
                             sh "chmod -R 777 ./backend-deploy"
-                            gitBranchExist = sh(returnStdout: true, script: "git ls-remote --heads origin ${env.VERSION_NUMBER}-${env.CHANGE_BRANCH}")
-                            if(gitBranchExist){
-                                sh "git checkout ${env.VERSION_NUMBER}-${env.CHANGE_BRANCH}"
-                            } else{
-                                sh "git checkout -b ${env.VERSION_NUMBER}-${env.CHANGE_BRANCH}"
+                            dir('backend-deploy'){
+                                gitBranchExist = sh(returnStatus: true, script: "git show-ref --verify refs/remotes/origin/${env.VERSION_NUMBER}-${env.CHANGE_BRANCH}")
+                                if(gitBranchExist == 0){
+                                    sh "git checkout ${branchName}"
+                                } else{
+                                    sh "git checkout -b ${branchName}"
+                                }
                             }
                             dir('backend-deploy/overlays/qa'){
-                                sh "kustomize edit set image 553061678476.dkr.ecr.ap-southeast-1.amazonaws.com/backend:${env.VERSION_NUMBER}-${env.CHANGE_BRANCH}"
+                                sh "kustomize edit set image 553061678476.dkr.ecr.ap-southeast-1.amazonaws.com/backend:${branchName}"
                             }                    
                             dir('backend-deploy'){
                                 sh "git commit -am 'Publish new version ${env.VERSION_NUMBER} to QA' && git push || echo 'no changes'"
                             }
-                        }   
+                        }
+
+                        container('argocd-cli'){
+                            withCredentials([string(credentialsId: 'argocd-token',variable: 'ARGOCD_AUTH_TOKEN')]){
+                                if(gitBranchExist == 0){
+                                    sh "argocd app sync backend-qa-${branchName} --resource apps:Deployment:qa-teethcare-backend --prune --replace --force"
+                                }else{
+                                    sh "argocd app create backend-qa-${branchName} --repo git@github.com:baolongv3-kms/backend-deploy --path overlays/qa --revision ${branchName} --sync-policy automated"
+                                }
+                            }
+                        }
+
                     } 
                 }
 
