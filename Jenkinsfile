@@ -74,7 +74,7 @@ podTemplate(containers: [containerTemplate(name: 'maven', image: 'maven' , comma
                                 if(gitBranchExist == 0){
                                     sh "argocd --insecure --grpc-web app sync backend-qa-${branchName} --resource apps:Deployment:qa-teethcare-backend --prune --replace --force"
                                 }else{
-                                    sh "argocd --insecure --grpc-web app create backend-qa-${branchName} --repo git@github.com:baolongv3-kms/backend-deploy --path overlays/qa --revision ${branchName} --sync-policy automated"
+                                    sh "argocd --insecure --grpc-web app create backend-qa-${branchName} --repo git@github.com:baolongv3-kms/backend-deploy --path overlays/qa --revision ${branchName} --sync-policy automated --dest-server https://kubernetes.default.svc"
                                 }
                             }
                         }
