@@ -51,7 +51,7 @@ podTemplate(containers: [containerTemplate(name: 'maven', image: 'maven' , comma
                             sh "git config --global user.email 'ci@ci.com'"
                             sh "chmod -R 777 ./backend-deploy"
                             dir('backend-deploy'){
-                                gitBranchExist = sh(returnStatus: true, script: "git show-ref --verify refs/remotes/origin/${env.VERSION_NUMBER}-${env.CHANGE_BRANCH}")
+                                gitBranchExist = sh(returnStatus: true, script: "git show-ref --verify refs/remotes/origin/${branchName}")
                                 if(gitBranchExist == 0){
                                     sh "git checkout ${branchName}"
                                     sh "git pull"
