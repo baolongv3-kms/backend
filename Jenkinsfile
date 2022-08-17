@@ -18,7 +18,7 @@ podTemplate(containers: [containerTemplate(name: 'maven', image: 'maven' , comma
                     
                 }
 
-
+                branchName = "${env.VERSION_NUMBER}-${env.CHANGE_BRANCH}".toLowerCase()
                 stage('SonarQube Analysis'){
                     container('maven'){
                         withSonarQubeEnv() {
@@ -48,7 +48,6 @@ podTemplate(containers: [containerTemplate(name: 'maven', image: 'maven' , comma
                     }
                     stage('Deploy to QA'){
                         container('tools'){
-                            branchName = "${env.VERSION_NUMBER}-${env.CHANGE_BRANCH}".toLowerCase()
                             sh "git clone https://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@github.com/baolongv3-kms/backend-deploy"
                             sh "git config --global user.email 'ci@ci.com'"
                             sh "chmod -R 777 ./backend-deploy"
@@ -56,6 +55,7 @@ podTemplate(containers: [containerTemplate(name: 'maven', image: 'maven' , comma
                                 gitBranchExist = sh(returnStatus: true, script: "git show-ref --verify refs/remotes/origin/${env.VERSION_NUMBER}-${env.CHANGE_BRANCH}")
                                 if(gitBranchExist == 0){
                                     sh "git checkout ${branchName}"
+                                    sh "git pull"
                                 } else{
                                     sh "git checkout -b ${branchName}"
                                 }
