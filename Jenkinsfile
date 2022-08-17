@@ -48,7 +48,7 @@ podTemplate(containers: [containerTemplate(name: 'maven', image: 'maven' , comma
                     }
                     stage('Deploy to QA'){
                         container('tools'){
-                            branchName = "${env.VERSION_NUMBER}-${env.CHANGE_BRANCH}"
+                            branchName = "${env.VERSION_NUMBER}-${env.CHANGE_BRANCH}".toLowerCase()
                             sh "git clone https://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@github.com/baolongv3-kms/backend-deploy"
                             sh "git config --global user.email 'ci@ci.com'"
                             sh "chmod -R 777 ./backend-deploy"
