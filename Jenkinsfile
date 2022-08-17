@@ -61,7 +61,7 @@ podTemplate(containers: [containerTemplate(name: 'maven', image: 'maven' , comma
                             }
                             dir('backend-deploy/overlays/qa'){
                                 sh "kustomize edit set image 553061678476.dkr.ecr.ap-southeast-1.amazonaws.com/backend:${branchName}"
-                                sh "kustomize edit set namesuffix -${branchName}"
+                                sh "kustomize edit set namesuffix -- -${branchName}"
                             }                    
                             dir('backend-deploy'){
                                 sh "git commit --allow-empty -am 'Publish new version ${env.VERSION_NUMBER} to QA'"
