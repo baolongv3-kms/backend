@@ -38,7 +38,7 @@ podTemplate(containers: [containerTemplate(name: 'maven', image: 'maven' , comma
                     }
                     stage('Build Artifact'){
                         container('maven'){
-                            sh 'mvn clean package'
+                            sh 'mvn clean package -DskipTests'
                         }
                     }
                     stage('Build Docker Image and publish to ECR'){
@@ -72,9 +72,9 @@ podTemplate(containers: [containerTemplate(name: 'maven', image: 'maven' , comma
                             withCredentials([string(credentialsId: 'argocd-token',variable: 'ARGOCD_AUTH_TOKEN')]){
                                 env.ARGOCD_SERVER = "a6e044b5ce8b84442a276c9a2ca3a6a3-1501782069.ap-southeast-1.elb.amazonaws.com"
                                 if(gitBranchExist == 0){
-                                    sh "argocd app sync backend-qa-${branchName} --resource apps:Deployment:qa-teethcare-backend --prune --replace --force"
+                                    sh "argocd --grpc-web app sync backend-qa-${branchName} --resource apps:Deployment:qa-teethcare-backend --prune --replace --force"
                                 }else{
-                                    sh "argocd app create backend-qa-${branchName} --repo git@github.com:baolongv3-kms/backend-deploy --path overlays/qa --revision ${branchName} --sync-policy automated"
+                                    sh "argocd --grpc-web app create backend-qa-${branchName} --repo git@github.com:baolongv3-kms/backend-deploy --path overlays/qa --revision ${branchName} --sync-policy automated"
                                 }
                             }
                         }
