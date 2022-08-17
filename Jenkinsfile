@@ -42,7 +42,7 @@ podTemplate(containers: [containerTemplate(name: 'maven', image: 'maven' , comma
                     }
                     stage('Build Docker Image and publish to ECR'){
                         container('kaniko'){
-                            sh "/kaniko/executor --dockerfile `pwd`/Dockerfile --context `pwd` --destination=553061678476.dkr.ecr.ap-southeast-1.amazonaws.com/backend:${env.VERSION_NUMBER}-${env.CHANGE_BRANCH}"
+                            sh "/kaniko/executor --dockerfile `pwd`/Dockerfile --context `pwd` --destination=553061678476.dkr.ecr.ap-southeast-1.amazonaws.com/backend:${branchName}"
                         }
                     }
                     stage('Deploy to QA'){
