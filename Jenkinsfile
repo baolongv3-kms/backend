@@ -66,7 +66,7 @@ podTemplate(containers: [containerTemplate(name: 'maven', image: 'maven' , comma
                             }                    
                             dir('backend-deploy'){
                                 sh "git commit --allow-empty -am 'Publish new version ${env.VERSION_NUMBER} to QA'"
-                                sh "git push origin ${branchName}"
+                                sh "git push origin HEAD"
                             }
                         }
 
