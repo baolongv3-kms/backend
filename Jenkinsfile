@@ -3,7 +3,7 @@ podTemplate(containers: [containerTemplate(name: 'maven', image: 'maven' , comma
                          containerTemplate(name: 'kaniko', image:'gcr.io/kaniko-project/executor:debug-539ddefcae3fd6b411a95982a830d987f4214251', command: 'cat', ttyEnabled: true),
                          containerTemplate(name: 'tools', image: 'argoproj/argo-cd-ci-builder', command: 'cat', ttyEnabled: true),
                          containerTemplate(name: 'argocd-cli', image: 'argoproj/argocli', command: 'cat', ttyEnabled: true),
-                         containerTemplate(name: 'git', image: 'alpine/git:latest', command: 'cat', ttyEnabled: true)],
+                         containerTemplate(name: 'git', image: 'alpine/git:latest', command: '/bin/sh', ttyEnabled: true)],
     volumes: [
         persistentVolumeClaim(mountPath: '/root/.m2/repository', claimName: 'maven-repo', readOnly: false),
         configMapVolume(configMapName: 'docker-config', mountPath: '/kaniko/.docker/'),
