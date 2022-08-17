@@ -50,49 +50,54 @@ podTemplate(containers: [containerTemplate(name: 'maven', image: 'maven' , comma
                             sh "git clone https://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@github.com/baolongv3-kms/backend-deploy"
                             sh "git config --global user.email 'ci@ci.com'"
                             sh "chmod -R 777 ./backend-deploy"
+                            gitBranchExist = sh(returnStdout: true, script: "git ls-remote --heads origin ${env.VERSION_NUMBER}-${env.CHANGE_BRANCH}")
+                            if(gitBranchExist){
+                                sh "git checkout ${env.VERSION_NUMBER}-${env.CHANGE_BRANCH}"
+                            } else{
+                                sh "git checkout -b ${env.VERSION_NUMBER}-${env.CHANGE_BRANCH}"
+                            }
                             dir('backend-deploy/overlays/qa'){
                                 sh "kustomize edit set image 553061678476.dkr.ecr.ap-southeast-1.amazonaws.com/backend:${env.VERSION_NUMBER}-${env.CHANGE_BRANCH}"
                             }                    
                             dir('backend-deploy'){
-                                sh "git commit -am 'Publish new version ${env.VERSION_NUMBER} to staging' && git push || echo 'no changess'"
+                                sh "git commit -am 'Publish new version ${env.VERSION_NUMBER} to QA' && git push || echo 'no changes'"
                             }
-                            inp
-                        }
+                        }   
                     } 
                 }
 
-                if(env.CHANGE_TARGET == 'release'){
-                    env.DB_TYPE = "teethcare-qa"
-                    stage('test'){
-                        container('maven'){   
-                            env.DB_TYPE = "teethcare-qa"                   
-                            sh "mvn test"                                     
-                        }
-                    }
-                    stage('Build Artifact'){
-                        container('maven'){
-                            sh 'mvn clean package'
-                        }
-                    }
-                    stage('Build Docker Image and publish to ECR'){
-                        container('kaniko'){
-                            sh "/kaniko/executor --dockerfile `pwd`/Dockerfile --context `pwd` --destination=553061678476.dkr.ecr.ap-southeast-1.amazonaws.com/backend:${env.VERSION_NUMBER}"
-                        }
+                // if(env.CHANGE_TARGET == 'release'){
+                //     env.DB_TYPE = "teethcare-qa"
+                //     stage('test'){
+                //         container('maven'){   
+                //             env.DB_TYPE = "teethcare-qa"                   
+                //             sh "mvn test"                                     
+                //         }
+                //     }
+                //     stage('Build Artifact'){
+                //         container('maven'){
+                //             sh 'mvn clean package'
+                //         }
+                //     }
+                //     stage('Build Docker Image and publish to ECR'){
+                //         container('kaniko'){
+                //             sh "/kaniko/executor --dockerfile `pwd`/Dockerfile --context `pwd` --destination=553061678476.dkr.ecr.ap-southeast-1.amazonaws.com/backend:${env.VERSION_NUMBER}"
+                //         }
                             
-                    }
-                    stage('Deploy to Staging'){
-                        container('kustomize'){
-                            sh "git clone https://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@github.com/baolongv3-kms/backend-deploy"
-                            sh "git config --global user.email 'ci@ci.com'"
-                            dir("backend-deploy"){
-                                sh "cd ./backend-deploy/overlays/qa && kustomize edit set image 553061678476.dkr.ecr.ap-southeast-1.amazonaws.com/backend:${env.VERSION_NUMBER}"
+                //     }
+                //     stage('Deploy to Staging'){
+                //         container('kustomize'){
+                //             sh "git clone https://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@github.com/baolongv3-kms/backend-deploy"
+                //             sh "git config --global user.email 'ci@ci.com'"
+                //             dir("backend-deploy"){
+                //                 sh "cd ./backend-deploy/overlays/qa && kustomize edit set image 553061678476.dkr.ecr.ap-southeast-1.amazonaws.com/backend:${env.VERSION_NUMBER}"
                                 
-                            }
-                        }
-                        sh "git commit -am 'Publish new version ${env.VERSION_NUMBER} to staging' && git push || echo 'no changes'"
+                //             }
+                //         }
+                //         sh "git commit -am 'Publish new version ${env.VERSION_NUMBER} to staging' && git push || echo 'no changes'"
             
-                    }
-                }          
+                //     }
+                // }          
             }
         }
     }
