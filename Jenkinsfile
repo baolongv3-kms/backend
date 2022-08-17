@@ -61,6 +61,7 @@ podTemplate(containers: [containerTemplate(name: 'maven', image: 'maven' , comma
                             }
                             dir('backend-deploy/overlays/qa'){
                                 sh "kustomize edit set image 553061678476.dkr.ecr.ap-southeast-1.amazonaws.com/backend:${branchName}"
+                                resourceName = branchName.replace(".","-")
                                 sh "kustomize edit set namesuffix -- -${branchName}"
                             }                    
                             dir('backend-deploy'){
