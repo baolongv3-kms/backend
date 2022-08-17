@@ -70,6 +70,7 @@ podTemplate(containers: [containerTemplate(name: 'maven', image: 'maven' , comma
 
                         container('argocd-cli'){
                             withCredentials([string(credentialsId: 'argocd-token',variable: 'ARGOCD_AUTH_TOKEN')]){
+                                env.ARGOCD_SERVER = "a6e044b5ce8b84442a276c9a2ca3a6a3-1501782069.ap-southeast-1.elb.amazonaws.com"
                                 if(gitBranchExist == 0){
                                     sh "argocd app sync backend-qa-${branchName} --resource apps:Deployment:qa-teethcare-backend --prune --replace --force"
                                 }else{
