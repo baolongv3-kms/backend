@@ -15,10 +15,9 @@ podTemplate(containers: [containerTemplate(name: 'maven', image: 'maven' , comma
                 
                 stage ('checkout') {
                     checkout scm
-                    
                 }
 
-                branchName = "${env.VERSION_NUMBER}-${env.CHANGE_BRANCH}".toLowerCase()
+                
                 stage('SonarQube Analysis'){
                     container('maven'){
                         withSonarQubeEnv() {
@@ -28,7 +27,7 @@ podTemplate(containers: [containerTemplate(name: 'maven', image: 'maven' , comma
                         }
                     }
                 }
-
+                branchName = "${env.VERSION_NUMBER}-${env.CHANGE_BRANCH}".toLowerCase()
                 if(env.CHANGE_TARGET == 'dev'){
                     stage('test'){
                         container('maven'){   
