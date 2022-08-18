@@ -118,4 +118,23 @@ podTemplate(containers: [containerTemplate(name: 'maven', image: 'maven' , comma
                 // }          
             }
         }
+
+        if(env.CHANGE_TARGET == 'dev'){
+            userInput = input message: 'Approve this feature as complete?', ok: 'Yes', id: 'IS_APPROVED', parameters: [booleanParam(name: 'approved',description:'Is this feature complete?', defaultValue: false)]
+            node(POD_LABEL){
+                stage('Cleanup resource'){
+                    container('argocd-cli'){
+                        sh "argocd --insecure --grpc-web app delete backend-qa-${branchName} -y -p background"
+                    }
+                    container('tools'){
+                        dir('backend-deploy'){
+                            sh "git push -d origin ${branchName}"
+                        }
+                    }
+                }
+            }
+            if(!userInput){
+                error('Build didnt pass QA Test')
+            }
+        }
     }
