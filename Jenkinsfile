@@ -84,38 +84,44 @@ podTemplate(containers: [containerTemplate(name: 'maven', image: 'maven' , comma
                     } 
                 }
 
-                // if(env.CHANGE_TARGET == 'release'){
-                //     env.DB_TYPE = "teethcare-qa"
-                //     stage('test'){
-                //         container('maven'){   
-                //             env.DB_TYPE = "teethcare-qa"                   
-                //             sh "mvn test"                                     
-                //         }
-                //     }
-                //     stage('Build Artifact'){
-                //         container('maven'){
-                //             sh 'mvn clean package'
-                //         }
-                //     }
-                //     stage('Build Docker Image and publish to ECR'){
-                //         container('kaniko'){
-                //             sh "/kaniko/executor --dockerfile `pwd`/Dockerfile --context `pwd` --destination=553061678476.dkr.ecr.ap-southeast-1.amazonaws.com/backend:${env.VERSION_NUMBER}"
-                //         }
+                if(env.CHANGE_TARGET == 'release'){
+                    env.DB_TYPE = "teethcare-qa"
+                    stage('test'){
+                        container('maven'){   
+                            env.DB_TYPE = "teethcare-qa"                   
+                            sh "mvn test"                                     
+                        }
+                    }
+                    stage('Build Artifact'){
+                        container('maven'){
+                            sh 'mvn clean package'
+                        }
+                    }
+                    stage('Build Docker Image and publish to ECR'){
+                        container('kaniko'){
+                            sh "/kaniko/executor --dockerfile `pwd`/Dockerfile --context `pwd` --destination=553061678476.dkr.ecr.ap-southeast-1.amazonaws.com/backend:${env.VERSION_NUMBER}"
+                        }
                             
-                //     }
-                //     stage('Deploy to Staging'){
-                //         container('kustomize'){
-                //             sh "git clone https://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@github.com/baolongv3-kms/backend-deploy"
-                //             sh "git config --global user.email 'ci@ci.com'"
-                //             dir("backend-deploy"){
-                //                 sh "cd ./backend-deploy/overlays/qa && kustomize edit set image 553061678476.dkr.ecr.ap-southeast-1.amazonaws.com/backend:${env.VERSION_NUMBER}"
-                                
-                //             }
-                //         }
-                //         sh "git commit -am 'Publish new version ${env.VERSION_NUMBER} to staging' && git push || echo 'no changes'"
-            
-                //     }
-                // }          
+                    }
+                    stage('Deploy to Staging'){
+                        container('tools'){
+                            sh "git clone https://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@github.com/baolongv3-kms/backend-deploy"
+                            sh "git config --global user.email 'ci@ci.com'"
+                            dir('backend-deploy/overlays/staging'){
+                                sh "kustomize edit set image 553061678476.dkr.ecr.ap-southeast-1.amazonaws.com/backend:${env.VERSION_NUMBER}"
+                            }
+                            dir('backend-deploy'){
+                                sh "git commit -am 'Publish new version ${env.VERSION_NUMBER} to staging"
+                                sh "git push origin HEAD"
+                            }
+                        container('argocd-cli'){
+                            withCredentials([string(credentialsId: 'argocd-token',variable: 'ARGOCD_AUTH_TOKEN')]){
+                                env.ARGOCD_SERVER = "a6e044b5ce8b84442a276c9a2ca3a6a3-1501782069.ap-southeast-1.elb.amazonaws.com"
+                                sh "argocd --insecure --grpc-web app sync backend-staging --resource apps:Deployment:qa-teethcare-backend --prune --replace --force"           
+                            }
+                        }
+                    }
+                }          
             }
         }
 
@@ -142,6 +148,35 @@ podTemplate(containers: [containerTemplate(name: 'maven', image: 'maven' , comma
             }
             if(!userInput){
                 error('Build didnt pass QA Test')
+            }
+        }
+
+        if(env.CHANGE_TARGET == 'release'){
+            userInput = input message: 'Ready to go to production?', ok: 'Proceed', id: 'READY', parameters: [booleanParam(name: 'approved',description:'Is this build ready to go on production?', defaultValue: false)]
+            if(!userInput){
+                error('Build rejected by QA')
+            }
+            stage('Deploy to production'){
+                node(POD_LABEL){
+                    container('tools'){
+                        sh "git clone https://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@github.com/baolongv3-kms/backend-deploy"
+                        sh "git config --global user.email 'ci@ci.com'"
+                        sh "chmod -R 777 ./backend-deploy"
+                        dir('backend-deploy/overlays/production'){    
+                            sh "kustomize edit set image 553061678476.dkr.ecr.ap-southeast-1.amazonaws.com/backend:${env.VERSION_NUMBER}"
+                        }
+                        dir('backend-deploy'){
+                            sh "git commit --allow-empty -am 'Publish new version ${env.VERSION_NUMBER} to Production'"
+                            sh "git push origin HEAD"
+                        }
+                    }
+                    container('argocd-cli'){
+                        withCredentials([string(credentialsId: 'argocd-token',variable: 'ARGOCD_AUTH_TOKEN')]){
+                            env.ARGOCD_SERVER = "a6e044b5ce8b84442a276c9a2ca3a6a3-1501782069.ap-southeast-1.elb.amazonaws.com"
+                            sh "argocd --insecure --grpc-web app sync backend-prod --resource apps:Deployment:qa-teethcare-backend --prune --replace --force"           
+                        }
+                    }
+                }
             }
         }
     }
