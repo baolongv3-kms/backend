@@ -105,7 +105,7 @@ podTemplate(containers: [containerTemplate(name: 'maven', image: 'maven' , comma
                     }
                     stage('Deploy to Staging'){
                         container('tools'){
-                            sh "git clone https://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@github.com/baolongv3-kms/backend-deploy"
+                            sh "git clone https://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@github.com/baolongv3-kms/backend-deploy"
                             sh "git config --global user.email 'ci@ci.com'"
                             dir('backend-deploy/overlays/staging'){
                                 sh "kustomize edit set image 553061678476.dkr.ecr.ap-southeast-1.amazonaws.com/backend:${env.VERSION_NUMBER}"
