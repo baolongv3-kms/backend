@@ -180,3 +180,4 @@ podTemplate(containers: [containerTemplate(name: 'maven', image: 'maven' , comma
             }
         }
     }
+    }
