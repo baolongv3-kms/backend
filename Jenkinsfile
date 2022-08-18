@@ -123,8 +123,12 @@ podTemplate(containers: [containerTemplate(name: 'maven', image: 'maven' , comma
             userInput = input message: 'Approve this feature as complete?', ok: 'Yes', id: 'IS_APPROVED', parameters: [booleanParam(name: 'approved',description:'Is this feature complete?', defaultValue: false)]
             node(POD_LABEL){
                 stage('Cleanup resource'){
+                    
                     container('argocd-cli'){
-                        sh "argocd --insecure --grpc-web app delete backend-qa-${branchName} -y -p background"
+                        withCredentials([string(credentialsId: 'argocd-token',variable: 'ARGOCD_AUTH_TOKEN')]){
+                            env.ARGOCD_SERVER = "a6e044b5ce8b84442a276c9a2ca3a6a3-1501782069.ap-southeast-1.elb.amazonaws.com"
+                            sh "argocd --insecure --grpc-web app delete backend-qa-${branchName} -y"
+                        }
                     }
                     container('tools'){
                         dir('backend-deploy'){
