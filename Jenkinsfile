@@ -112,7 +112,7 @@ podTemplate(containers: [containerTemplate(name: 'maven', image: 'maven' , comma
                                 sh "kustomize edit set image 553061678476.dkr.ecr.ap-southeast-1.amazonaws.com/backend:${env.VERSION_NUMBER}"
                             }
                             dir('backend-deploy'){
-                                sh "git commit -am 'Publish new version ${env.VERSION_NUMBER} to staging"
+                                sh "git commit -am 'Publish new version ${env.VERSION_NUMBER} to staging'"
                                 sh "git push origin HEAD"
                             }
                         container('argocd-cli'){
