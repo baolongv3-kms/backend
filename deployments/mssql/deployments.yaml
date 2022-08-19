@@ -14,8 +14,6 @@ spec:
     metadata:
       labels:
         app: mssql-qa
-      annotations:
-        'consul.hashicorp.com/connect-inject': 'true'
     spec:
       terminationGracePeriodSeconds: 10
       securityContext:
